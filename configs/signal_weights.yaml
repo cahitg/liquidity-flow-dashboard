@@ -1,0 +1,211 @@
+# ============================================================================
+# SİNYAL AĞIRLIKLARI - Akışkan Para Modeli
+# ============================================================================
+# P (Basınç), μ (Viskozite), Q (Debi) hesaplaması için ağırlıklar
+# Tüm ağırlıklar toplamı 1.0 olmalı
+# ============================================================================
+
+# ============================================================================
+# BASINÇ (P) - Finansman Koşulları ve Likidite Rejimi
+# ============================================================================
+pressure:
+  description: "Sistemi iten/çeken güçler - likidite bolluğu/kıtlığı"
+  
+  components:
+    rate_velocity:
+      weight: 0.30
+      description: "Policy rate değişim hızı (30d pct_change)"
+      data_source: "FRED: DFF (Federal Funds Rate)"
+      calculation: "30-day percentage change, 10-day rolling mean"
+      normalization: "z-score over 252 days"
+    
+    usd_pressure:
+      weight: 0.25
+      description: "USD gücü (ters ağırlık - güçlü USD = düşük basınç)"
+      data_source: "DXY Index (US Dollar Index)"
+      calculation: "-1 * (20-day momentum), 5-day rolling mean"
+      normalization: "z-score over 252 days"
+    
+    curve_slope:
+      weight: 0.25
+      description: "Yield curve eğimi (10Y - 2Y)"
+      data_source: "FRED: DGS10 - DGS2"
+      calculation: "20-day rolling mean of spread"
+      normalization: "z-score over 252 days"
+    
+    funding_stress:
+      weight: 0.20
+      description: "Finansman stresi (TED spread veya proxy)"
+      data_source: "FRED: TEDRATE (TED Spread)"
+      calculation: "-1 * (10-day rolling mean)"
+      normalization: "z-score over 252 days"
+      fallback: "3M LIBOR - 3M T-Bill spread"
+  
+  # Final normalization
+  final_normalization:
+    method: "tanh"  # [-1, 1] aralığına sıkıştır
+    clip_range: [-1.0, 1.0]
+
+# ============================================================================
+# VİSKOZİTE (μ) - Piyasa Sürtünmesi ve Belirsizlik
+# ============================================================================
+viscosity:
+  description: "Akışa karşı direnç - volatilite, stres, belirsizlik"
+  
+  components:
+    realized_vol:
+      weight: 0.35
+      description: "Realized volatility (equity benchmark)"
+      data_source: "SPY daily returns"
+      calculation: "20-day rolling std, annualized (* sqrt(252))"
+      normalization: "min-max scaling [0, 1] over 252 days"
+    
+    drawdown:
+      weight: 0.25
+      description: "Peak-to-trough drawdown"
+      data_source: "SPY price"
+      calculation: "(current - 90d high) / 90d high, absolute value"
+      normalization: "min-max scaling [0, 1]"
+    
+    credit_stress:
+      weight: 0.25
+      description: "Credit spread genişlemesi (HY - IG)"
+      data_source: "HYG vs LQD ETF yield spread"
+      calculation: "HYG yield - LQD yield, 10-day change"
+      normalization: "z-score over 252 days, then min-max [0, 1]"
+      fallback: "VIX index as proxy"
+    
+    correlation_spike:
+      weight: 0.15
+      description: "Cross-asset correlation artışı (risk-off sinyali)"
+      data_source: "SPY, TLT, GLD correlations"
+      calculation: "30-day rolling correlation, deviation from mean"
+      normalization: "z-score over 252 days, then min-max [0, 1]"
+  
+  # Final normalization
+  final_normalization:
+    method: "sigmoid"  # [0, 1] aralığına sıkıştır
+    clip_range: [0.0, 1.0]
+
+# ============================================================================
+# DEBİ (Q) - Risk İştahı ve Sermaye Akışı
+# ============================================================================
+flow:
+  description: "Risk varlıklarına net sermaye yönelimi"
+  
+  components:
+    equity_momentum:
+      weight: 0.30
+      description: "Equity trend strength"
+      data_source: "SPY price"
+      calculation: "(50d SMA - 200d SMA) / 200d SMA"
+      normalization: "z-score over 252 days, tanh"
+    
+    defensive_cyclical:
+      weight: 0.25
+      description: "Defensive vs Cyclical ratio"
+      data_source: "XLU (Utilities) / XLY (Consumer Discretionary)"
+      calculation: "20-day pct_change of ratio, negative (high XLU = low Q)"
+      normalization: "z-score over 252 days, tanh"
+    
+    crypto_beta:
+      weight: 0.25
+      description: "Crypto correlation with equity (risk appetite proxy)"
+      data_source: "BTC-USD, ETH-USD vs SPY"
+      calculation: "30-day rolling correlation (BTC+ETH avg with SPY)"
+      normalization: "direct scaling [-1, 1]"
+    
+    put_call_ratio:
+      weight: 0.20
+      description: "CBOE Put/Call ratio (inverse)"
+      data_source: "CBOE Total Put/Call Ratio"
+      calculation: "-1 * (10-day rolling mean - 20-day mean)"
+      normalization: "z-score over 252 days, tanh"
+      fallback: "VIX term structure (VIX / VIX3M)"
+  
+  # Final normalization
+  final_normalization:
+    method: "tanh"  # [-1, 1] aralığına sıkıştır
+    clip_range: [-1.0, 1.0]
+
+# ============================================================================
+# GENEL AYARLAR
+# ============================================================================
+general:
+  # Lookback period for normalization
+  normalization_window: 252  # 1 year trading days
+  
+  # Minimum data points required
+  min_data_points: 60
+  
+  # Missing data handling
+  missing_data_method: "forward_fill"  # forward_fill, interpolate, drop
+  max_missing_days: 5
+  
+  # Outlier handling
+  outlier_clip_std: 3.0  # Clip values beyond ±3 std
+  
+  # Update frequency
+  recalculation_frequency: "daily"  # daily, weekly
+  
+  # Smoothing
+  apply_smoothing: true
+  smoothing_window: 3  # 3-day EMA for final signals
+
+# ============================================================================
+# VERİ KAYNAKLARI
+# ============================================================================
+data_sources:
+  # Primary sources
+  equity_data:
+    - symbol: "SPY"
+      name: "S&P 500 ETF"
+      primary: true
+    - symbol: "VTI"
+      name: "Total US Stock Market"
+      primary: false
+  
+  bond_data:
+    - symbol: "AGG"
+      name: "Aggregate Bond ETF"
+      primary: true
+    - symbol: "TLT"
+      name: "20+ Year Treasury"
+      primary: true
+  
+  macro_data:
+    fred_series:
+      - "DFF"      # Federal Funds Rate
+      - "DGS10"    # 10-Year Treasury
+      - "DGS2"     # 2-Year Treasury
+      - "TEDRATE"  # TED Spread
+      - "DEXUSEU"  # USD/EUR (optional)
+  
+  crypto_data:
+    - symbol: "BTC-USD"
+      name: "Bitcoin"
+      primary: true
+    - symbol: "ETH-USD"
+      name: "Ethereum"
+      primary: true
+  
+  alternative_data:
+    - symbol: "VIX"
+      name: "CBOE Volatility Index"
+      use_as_fallback: true
+
+# ============================================================================
+# AĞIRLIK KALIBRASYON (İLERİ SEVİYE)
+# ============================================================================
+weight_calibration:
+  # Bu ağırlıklar adaptif güncellenebilir mi?
+  adaptive_weights: false  # İlk versiyonda sabit
+  
+  # Eğer adaptive ise, güncelleme yöntemi
+  update_method: "gradient_descent"  # Manual kullanım
+  
+  # Minimum değişim threshold (ağırlık değişimi bu değerden küçükse ignore et)
+  min_weight_change: 0.01
+  
+  # Feedback loop
+  feedback_signal: "regime_transition_accuracy"  # İleride implement edilecek

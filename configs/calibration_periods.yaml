@@ -1,0 +1,287 @@
+# ============================================================================
+# KALİBRASYON DÖNEMLERİ - Tarihsel Rejim Etiketleri
+# ============================================================================
+# Bu etiketler "proxy" etiketlerdir - gerçek "doğru" rejim yoktur
+# Sadece empirical profil (μ, σ) kalibrasyonu için kullanılır
+# Model eğitimi için DEĞİL!
+# ============================================================================
+
+calibration_periods:
+  # ============================================================================
+  # 2008-2009: FİNANSAL KRİZ
+  # ============================================================================
+  - period_id: "crisis_2008_acute"
+    start_date: "2008-09-15"  # Lehman Brothers iflası
+    end_date: "2009-03-09"    # Market dip
+    regime: "FLIGHT_TO_LIQUIDITY"
+    confidence: "high"
+    notes: |
+      Sistemik kriz, likidite donması, VIX >80
+      Fed emergency rate cuts, TARP, QE1 başlangıcı
+      Equity -50%, credit spreads patlaması
+    
+    key_events:
+      - "2008-09-15: Lehman Brothers bankruptcy"
+      - "2008-10: TARP bailout"
+      - "2008-12: Fed Funds -> 0-0.25%"
+      - "2009-03-09: Market bottom (SPX 666)"
+  
+  - period_id: "crisis_2008_recovery"
+    start_date: "2009-03-10"
+    end_date: "2010-04-30"
+    regime: "RISK_ON"
+    confidence: "high"
+    notes: |
+      V-şekli toparlanma, QE1 etkisi
+      Equity rally, volatilite düşüşü
+      Ancak Avrupa borç krizi başlangıcı
+    
+    key_events:
+      - "2009-03: Rally başlangıcı"
+      - "2009-11: QE1 genişletildi"
+      - "2010-05: Flash crash (geçici)"
+
+  # ============================================================================
+  # 2011: AVRUPA BORÇ KRİZİ
+  # ============================================================================
+  - period_id: "eurozone_crisis_2011"
+    start_date: "2011-08-01"
+    end_date: "2011-10-03"
+    regime: "DEFENSIVE"
+    confidence: "high"
+    notes: |
+      Yunanistan, İtalya, İspanya borç korkusu
+      S&P downgrades US credit rating (Ağustos)
+      Volatilite spike, safe-haven flows
+    
+    key_events:
+      - "2011-08-05: S&P downgrades US to AA+"
+      - "2011-08: SPX -18% in weeks"
+      - "2011-09: Fed Operation Twist"
+
+  # ============================================================================
+  # 2013-2014: TAPER TANTRUM ve TOPARLANMA
+  # ============================================================================
+  - period_id: "taper_tantrum_2013"
+    start_date: "2013-05-22"
+    end_date: "2013-09-18"
+    regime: "DEFENSIVE"
+    confidence: "medium"
+    notes: |
+      Bernanke QE taper sinyali
+      Bond yield spike, EM selloff
+      Orta düzey volatilite
+    
+    key_events:
+      - "2013-05-22: Bernanke taper testimony"
+      - "2013-06-19: Fed confirms taper"
+      - "2013-09: Fed delays taper (piyasa rahatladı)"
+  
+  - period_id: "steady_growth_2014"
+    start_date: "2014-01-01"
+    end_date: "2014-07-31"
+    regime: "RISK_ON"
+    confidence: "medium"
+    notes: |
+      Düşük volatilite, steady grind higher
+      QE3 tapering devam ediyor ama kontrollü
+      SPX all-time highs
+
+  # ============================================================================
+  # 2015-2016: ÇİN DEVALÜASYONu ve PETROL ÇÖKÜŞÜ
+  # ============================================================================
+  - period_id: "china_devaluation_2015"
+    start_date: "2015-08-11"
+    end_date: "2016-02-11"
+    regime: "DEFENSIVE"
+    confidence: "high"
+    notes: |
+      Çin yuan devalüasyonu, petrol $26'ya düştü
+      EM krizleri, HY credit spreads genişledi
+      Fed ilk rate hike (2015 Aralık) ama piyasa korkulu
+    
+    key_events:
+      - "2015-08-11: China yuan devaluation"
+      - "2015-12-16: Fed first rate hike since 2006"
+      - "2016-01: Oil hits $26, SPX -10%"
+      - "2016-02-11: Market bottom"
+
+  # ============================================================================
+  # 2017-2018: LATE CYCLE RALLY ve VOLMAGEDDON
+  # ============================================================================
+  - period_id: "late_cycle_rally_2017"
+    start_date: "2017-01-01"
+    end_date: "2018-01-26"
+    regime: "LATE_RISK_ON"
+    confidence: "high"
+    notes: |
+      Rekordlara koşu, düşük volatilite (VIX <10)
+      Trump tax cuts, synchronized global growth
+      Ama valuations yüksek, complacency
+    
+    key_events:
+      - "2017: VIX record lows (<10)"
+      - "2017-12: Trump tax cuts passed"
+      - "2018-01-26: SPX peak before correction"
+  
+  - period_id: "volmageddon_2018"
+    start_date: "2018-02-05"
+    end_date: "2018-02-09"
+    regime: "FLIGHT_TO_LIQUIDITY"
+    confidence: "medium"
+    notes: |
+      XIV implosion, VIX spike to 50
+      Kısa ama şiddetli volatilite patlaması
+      "Flash crash" benzeri
+    
+    key_events:
+      - "2018-02-05: VIX +116% in one day"
+      - "2018-02-06: XIV liquidated"
+
+  - period_id: "late_2018_correction"
+    start_date: "2018-10-01"
+    end_date: "2018-12-24"
+    regime: "DEFENSIVE"
+    confidence: "high"
+    notes: |
+      Fed tightening concerns, trade war fears
+      SPX -20%, credit spreads widening
+      Powell "autopilot" comment
+    
+    key_events:
+      - "2018-10: SPX starts decline"
+      - "2018-12-24: SPX -20% from peak"
+      - "2019-01: Fed pivot (dovish)"
+
+  # ============================================================================
+  # 2020: COVID CRASH ve RECOVERY
+  # ============================================================================
+  - period_id: "covid_crash_2020"
+    start_date: "2020-02-19"
+    end_date: "2020-03-23"
+    regime: "FLIGHT_TO_LIQUIDITY"
+    confidence: "high"
+    notes: |
+      En hızlı bear market tarihteki
+      SPX -34% in 23 days, VIX 82
+      Global lockdowns, economic freeze
+    
+    key_events:
+      - "2020-02-19: SPX all-time high"
+      - "2020-03-09: Oil price war (SA vs Russia)"
+      - "2020-03-12: Circuit breakers triggered"
+      - "2020-03-23: Market bottom"
+  
+  - period_id: "covid_recovery_2020"
+    start_date: "2020-03-24"
+    end_date: "2020-12-31"
+    regime: "RISK_ON"
+    confidence: "high"
+    notes: |
+      Tarihin en hızlı recovery'si
+      Fed unlimited QE, fiscal stimulus
+      Tech rally, stay-at-home stocks
+    
+    key_events:
+      - "2020-03-23: Fed announces unlimited QE"
+      - "2020-03-27: CARES Act ($2T stimulus)"
+      - "2020-08: SPX yeni ATH"
+      - "2020-11: Vaccine announcements"
+
+  # ============================================================================
+  # 2021-2022: ENFLASYON ve FED SIKIŞMASI
+  # ============================================================================
+  - period_id: "meme_bubble_2021"
+    start_date: "2021-01-01"
+    end_date: "2021-11-08"
+    regime: "LATE_RISK_ON"
+    confidence: "high"
+    notes: |
+      Meme stocks, SPACs, crypto bubble
+      Enflasyon yükseliyor ama Fed "geçici" diyor
+      Aşırı ısınma sinyalleri
+    
+    key_events:
+      - "2021-01: GameStop squeeze"
+      - "2021-05: Inflation concerns emerge"
+      - "2021-11-08: SPX all-time high"
+  
+  - period_id: "fed_tightening_2022"
+    start_date: "2022-01-03"
+    end_date: "2022-10-12"
+    regime: "DEFENSIVE"
+    confidence: "high"
+    notes: |
+      Agresif Fed tightening (75bps hikes)
+      SPX -25%, Nasdaq -35%
+      Bond/Stock 60/40 portföy en kötü yılı
+    
+    key_events:
+      - "2022-03: Fed starts rate hikes"
+      - "2022-06: First 75bps hike since 1994"
+      - "2022-09: CPI 9.1% (peak)"
+      - "2022-10-12: SPX bottom (~3600)"
+
+  # ============================================================================
+  # 2023-2024: AI RALLY ve YENİ REJİM
+  # ============================================================================
+  - period_id: "ai_rally_2023"
+    start_date: "2023-01-01"
+    end_date: "2024-02-29"
+    regime: "RISK_ON"
+    confidence: "medium"
+    notes: |
+      AI-driven rally (Nvidia, Magnificent 7)
+      Narrow leadership, breadth sorunları
+      Soft landing narrative
+    
+    key_events:
+      - "2023-01: Rally starts"
+      - "2023-11: ChatGPT 1 yaşında"
+      - "2024-02: Nvidia beats, SPX 5000+"
+
+# ============================================================================
+# KALİBRASYON METAVERİSİ
+# ============================================================================
+metadata:
+  total_periods: 17
+  
+  regime_distribution:
+    RISK_ON: 4
+    LATE_RISK_ON: 2
+    NEUTRAL: 0  # Henüz eklenmedi, eklenebilir
+    DEFENSIVE: 6
+    FLIGHT_TO_LIQUIDITY: 3
+  
+  date_range:
+    earliest: "2008-09-15"
+    latest: "2024-02-29"
+  
+  confidence_levels:
+    high: 13
+    medium: 4
+    low: 0
+  
+  notes: |
+    Bu etiketler subjektif ama iyi dokümante edilmiş.
+    Empirical kalibrasyon için kullanılacak.
+    Yeni dönemler eklenebilir (özellikle NEUTRAL örnekleri).
+
+# ============================================================================
+# KULLANIM KURALLARI
+# ============================================================================
+usage_guidelines:
+  purpose: "Empirical profil kalibrasyonu (μ_r, σ_r)"
+  not_for: "Supervised model training, backtesting labels"
+  
+  update_frequency: "Quarterly veya yeni major event sonrası"
+  
+  quality_checks:
+    - "En az 20 günlük dönem"
+    - "Açık key events ile desteklenmeli"
+    - "Multiple rejimlerin balanced dağılımı"
+    - "Overlapping dönemlerden kaçın"
+  
+  validation:
+    method: "Sinyal profillerini gözle kontrol et (EDA notebook'ta)"
+    threshold: "Z-score distribution makul görünmeli"

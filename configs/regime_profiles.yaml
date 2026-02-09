@@ -1,0 +1,239 @@
+# ============================================================================
+# REJIM PROFİLLERİ - Akışkan Para Modeli
+# ============================================================================
+# Her rejim için beklenen sinyal profili (mean ve std)
+# Bu değerler başlangıç prior'ları - empirical kalibrasyon ile güncellenecek
+# ============================================================================
+
+regimes:
+  RISK_ON:
+    name: "Risk On"
+    description: "Güçlü risk iştahı, düşük volatilite, pozitif momentum"
+    color: "#10B981"  # Yeşil
+    
+    # Ana Boyutlar (normalized -1 to 1)
+    pressure:
+      mean: 0.70
+      std: 0.25
+      description: "Yüksek likidite bolluğu, düşük finansman maliyeti"
+    
+    viscosity:
+      mean: 0.20
+      std: 0.15
+      description: "Düşük volatilite, minimal piyasa sürtünmesi"
+    
+    flow:
+      mean: 0.80
+      std: 0.20
+      description: "Güçlü equity akışı, yüksek risk iştahı"
+    
+    # Alt Sinyaller (isteğe bağlı - daha granüler analiz için)
+    sub_signals:
+      rate_velocity:
+        mean: 0.30
+        std: 0.20
+      
+      usd_pressure:
+        mean: -0.40  # Zayıf USD = yüksek risk iştahı
+        std: 0.25
+      
+      equity_momentum:
+        mean: 0.65
+        std: 0.25
+      
+      realized_vol:
+        mean: 0.15
+        std: 0.10
+      
+      put_call_ratio:
+        mean: -0.50  # Düşük put/call = bullish
+        std: 0.20
+
+  LATE_RISK_ON:
+    name: "Late Risk On"
+    description: "Aşırı ısınma sinyalleri, yüksek valuations, volatilite artışı"
+    color: "#F59E0B"  # Turuncu
+    
+    pressure:
+      mean: 0.50
+      std: 0.30
+      description: "Orta-yüksek likidite, sıkılaşma sinyalleri"
+    
+    viscosity:
+      mean: 0.40
+      std: 0.20
+      description: "Artan volatilite, ilk stres sinyalleri"
+    
+    flow:
+      mean: 0.60
+      std: 0.25
+      description: "Devam eden ama yavaşlayan equity akışı"
+    
+    sub_signals:
+      rate_velocity:
+        mean: 0.50
+        std: 0.25
+      
+      credit_spread:
+        mean: 0.30  # Açılmaya başlayan spreadler
+        std: 0.20
+      
+      equity_momentum:
+        mean: 0.40
+        std: 0.30
+      
+      realized_vol:
+        mean: 0.35
+        std: 0.15
+
+  NEUTRAL:
+    name: "Neutral"
+    description: "Kararsız piyasa, mixed signals, range-bound"
+    color: "#6B7280"  # Gri
+    
+    pressure:
+      mean: 0.00
+      std: 0.30
+      description: "Nötr finansman koşulları"
+    
+    viscosity:
+      mean: 0.50
+      std: 0.25
+      description: "Orta düzey belirsizlik"
+    
+    flow:
+      mean: 0.00
+      std: 0.30
+      description: "Dengelenmiş akışlar, rotasyon"
+    
+    sub_signals:
+      equity_momentum:
+        mean: 0.00
+        std: 0.35
+      
+      defensive_cyclical_ratio:
+        mean: 0.00  # Dengeli
+        std: 0.25
+      
+      realized_vol:
+        mean: 0.45
+        std: 0.20
+
+  DEFENSIVE:
+    name: "Defensive"
+    description: "Koruyucu pozisyonlama, risk azaltma, quality bias"
+    color: "#EF4444"  # Kırmızı
+    
+    pressure:
+      mean: -0.30
+      std: 0.25
+      description: "Sıkılaşan finansman, likidite azalması"
+    
+    viscosity:
+      mean: 0.65
+      std: 0.20
+      description: "Yüksek volatilite, artan belirsizlik"
+    
+    flow:
+      mean: -0.40
+      std: 0.25
+      description: "Bond/defensive akışı"
+    
+    sub_signals:
+      credit_spread:
+        mean: 0.50  # Açılan spreadler
+        std: 0.25
+      
+      defensive_cyclical_ratio:
+        mean: 0.60  # Defensive dominance
+        std: 0.20
+      
+      equity_momentum:
+        mean: -0.30
+        std: 0.30
+      
+      realized_vol:
+        mean: 0.60
+        std: 0.20
+      
+      drawdown:
+        mean: 0.40
+        std: 0.25
+
+  FLIGHT_TO_LIQUIDITY:
+    name: "Flight to Liquidity"
+    description: "Panik, likidite kaçışı, sistemik stres"
+    color: "#7C3AED"  # Mor
+    
+    pressure:
+      mean: -0.80
+      std: 0.20
+      description: "Ciddi likidite kıtlığı, finansman stresi"
+    
+    viscosity:
+      mean: 0.90
+      std: 0.15
+      description: "Ekstrem volatilite ve belirsizlik"
+    
+    flow:
+      mean: -0.75
+      std: 0.20
+      description: "Masif safe-haven akışı"
+    
+    sub_signals:
+      funding_stress:
+        mean: 0.85  # Yüksek TED spread
+        std: 0.15
+      
+      credit_spread:
+        mean: 0.80  # Geniş spreadler
+        std: 0.20
+      
+      correlation_spike:
+        mean: 0.85  # Yüksek cross-asset correlation
+        std: 0.15
+      
+      realized_vol:
+        mean: 0.85
+        std: 0.15
+      
+      drawdown:
+        mean: 0.75
+        std: 0.20
+      
+      equity_momentum:
+        mean: -0.70
+        std: 0.25
+
+# ============================================================================
+# KALİBRASYON PARAMETRELERİ
+# ============================================================================
+
+calibration:
+  # Empirical vs Expert Prior karışım oranı
+  empirical_weight: 0.70  # %70 empirical, %30 expert
+  
+  # Minimum gözlem sayısı (empirical kalibrasyon için)
+  min_observations: 20
+  
+  # Outlier filtreleme (z-score threshold)
+  outlier_threshold: 3.0
+  
+  # Güncelleme sıklığı (günlük veri ile kaç günde bir profil güncelle)
+  update_frequency_days: 90
+
+# ============================================================================
+# GÖRSELLEŞTIRME
+# ============================================================================
+
+visualization:
+  regime_colors:
+    RISK_ON: "#10B981"
+    LATE_RISK_ON: "#F59E0B"
+    NEUTRAL: "#6B7280"
+    DEFENSIVE: "#EF4444"
+    FLIGHT_TO_LIQUIDITY: "#7C3AED"
+  
+  # Dashboard grafik ayarları
+  chart_height: 400
+  chart_width: 800
